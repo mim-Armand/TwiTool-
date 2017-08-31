@@ -6,11 +6,11 @@ const os = require('os');
 
 
 const getApi = 'friends';
-const saveLocation = os.homedir() + '/Desktop/twitter_db/'
+const saveLocationBase = os.homedir() + '/Desktop/twitter_db/'
 var cursurIndex = 1;
 var dataToWrite = {"users": []};
 var next_cursor = undefined
-var date = new Date();
+
 
 
 
@@ -69,7 +69,10 @@ var getFollowers = function(){
 }
 
 
-var writeFile = function(file, message, saveLocation){
+var writeFile = function(file, message){
+
+	var date = new Date();
+	var saveLocation = saveLocationBase + date.toString().replace(/\:/g, '_').replace(/\s/g, '_') + '-' + getApi + '/';
 
 	if (!fs.existsSync(saveLocation)){
 	    fs.mkdirSync(saveLocation);
@@ -85,5 +88,5 @@ var writeFile = function(file, message, saveLocation){
 }
 
 
-// writeFile('test.txt', 'testin..', saveLocation);
-// getFollowers();
+
+getFollowers();
