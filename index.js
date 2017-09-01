@@ -4,30 +4,44 @@ const http = require('http'); // Loads the http module
 const Twitter = require('twitter');
 const os = require('os');
 
+const s3db = require('./s3db.js');
+const twitterClient = require('./twitterClient.js');
 
-const getApi = 'friends';
+
+
 const saveLocationBase = os.homedir() + '/Desktop/twitter_db/'
-var cursurIndex = 1;
-var dataToWrite = {"users": []};
-var next_cursor = undefined
+
+const projectBucketName = 'twitool'; // change this to a unique name!
+var displayName = 'mim_Armand';
+
+s3db.createBucket(projectBucketName)
+	.then(function(t){
+		console.log('cre Ated! ', t)
+	})
+
+twitterClient.getFollowers(displayName, '-1', 5000).then( //todo: if next-cursure exist make next calls (after 1 minute timeout) to get the next chinck of data
+	function(m){
+		console.log(m)
+
+        s3db.putObject(projectBucketName, displayName+'/1', JSON.stringify(m)).then(
+        function(t){
+        	console.log('put object ', t)
+        	}
+        )
+
+	},
+	function(err){
+		console.error(err)
+	})
 
 
-
-
-
-const client = new Twitter({
-  consumer_key: process.env.TWITTER_CONSUMER_KEY,
-  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-  access_token_key: process.env.TWITTER_ACCESS_TOKEN_KEY,
-  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
-});
 
 
 
 var app = express()
  
 app.get('/', function (req, res) {
-  res.send('Hello World')
+  res.send('TwiTool!')
 })
  
 app.listen(3000, function () {
@@ -38,35 +52,9 @@ app.listen(3000, function () {
 
 
 
-// writeFile("./followers.json" , tweets)
 
 
 
-var getFollowers = function(){
-	client.get(getApi +'/list', {cursor: next_cursor}, function(error, tweets, response) {
-	  if(error) console.error(error);
-
-	  if(tweets.errors) {
-	  	writeFile("./" + getApi + ".json" , dataToWrite)
-	  	return};
-
-	  	for( var i = 0; i < tweets.users.length; i++){
-	  		dataToWrite["users"].push( tweets.users[i] )
-	  	}
-
-
-	  writeFile("./"+getApi+"" + cursurIndex + ".json" , tweets)
-	  writeFile("./"+getApi+".json" , dataToWrite)
-	  cursurIndex++;
-	  console.log(cursurIndex, tweets.next_cursor)
-	  if(tweets.next_cursor !== 0){
-	  	next_cursor = tweets.next_cursor
-	  	setTimeout(getFollowers, 66699)
-	  }else{
-	  	writeFile("./"+getApi+".json" , dataToWrite)
-	  }
-	});
-}
 
 
 var writeFile = function(file, message){
@@ -89,4 +77,4 @@ var writeFile = function(file, message){
 
 
 
-getFollowers();
+// getFollowers();
