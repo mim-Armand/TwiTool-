@@ -9,23 +9,39 @@ const client = new Twitter({
 });
 
 
-const getFollowers = function(screen_name, next_cursor, count){
-    return new Promise( function( resolve, reject ){
+const getFollowers = function (screen_name, next_cursor, count) {
+    return new Promise(function (resolve, reject) {
         client.get('followers/ids',
             {
                 "screen_name": screen_name,
                 "cursor": next_cursor || '-1',
                 "count": count || '5000'
             }).then(
-                function(list) {
-                    if(list.errors) reject(list.errors)
-                    resolve(list)
-                },
-                function(err){
-                    reject(err)
-                })});
+            function (list) {
+                if (list.errors) reject(list.errors)
+                resolve(list)
+            },
+            function (err) {
+                reject(err)
+            })
+    });
+}
+
+const getUserShow = function (screenName) {
+    return new Promise(function(resolve, reject) {
+        client.get('users/show', {"screen_name": screenName})
+            .then(function(d){
+                // console.log('getUserShow', d)
+                resolve(d)
+            })
+            .catch(function(r){
+                // console.error('getUserShow', r)
+                reject(d)
+            })
+    })
 }
 
 module.exports = {
-    getFollowers: getFollowers
+    getFollowers: getFollowers,
+    getUserShow: getUserShow
 }
