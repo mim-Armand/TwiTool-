@@ -9,11 +9,12 @@ const client = new Twitter({
 });
 
 
-const getFollowers = function (screen_name, next_cursor, count) {
+const getFollowers = function (user_id, next_cursor, count) {
     return new Promise(function (resolve, reject) {
+        // resolve('TODO: remove this line!')
         client.get('followers/ids',
             {
-                "screen_name": screen_name,
+                "user_id": user_id,
                 "cursor": next_cursor || '-1',
                 "count": count || '5000'
             }).then(

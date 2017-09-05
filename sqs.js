@@ -17,10 +17,6 @@ const createQueue = function (args) {
     })
 }
 
-const deleteMessage = function () {
-    console.erro('NOT IMPLEMETED YET!')
-}
-
 const sendMessage = function (QueueUrl, MessageBody, DelaySeconds) {
     console.log('sending message ...')
     const params = {QueueUrl: QueueUrl, MessageBody: MessageBody, DelaySeconds: DelaySeconds || 0}
@@ -32,19 +28,50 @@ const sendMessage = function (QueueUrl, MessageBody, DelaySeconds) {
     })
 }
 
-const addFollowersCheck = function(QueueUrl, user_id, next_cursur){
+const addFollowersCheck = function(QueueUrl, user_id, screen_name, next_cursur, DelaySeconds){
     const MessageBody = {
         user_id: user_id,
+        screen_name: screen_name,
         next_cursur: next_cursur
     }
     return new Promise(function(resolve, reject){
-        sendMessage(QueueUrl, JSON.stringify(MessageBody))
+        sendMessage(QueueUrl, JSON.stringify(MessageBody), DelaySeconds|| 0 )
             .then(function(d){
                 resolve(d)
             })
             .catch(function(r){
                 reject(r)
             })
+    })
+}
+
+const receiveMessage = function(QueueUrl){
+    const params = {
+        QueueUrl: QueueUrl,
+        AttributeNames: ['All'],
+        MaxNumberOfMessages: 1,
+        // MessageAttributeNames: ['STRING_VALUE'],
+        VisibilityTimeout: 60,
+        WaitTimeSeconds: 0
+    }
+    return new Promise(function(resolve, reject){
+        sqs.receiveMessage(params, function(err, data){
+            if(err) reject(err)
+            resolve(data)
+        })
+    })
+}
+
+const deleteMessage = function(QueueUrl, ReceiptHandle){
+    var params = {
+        QueueUrl: QueueUrl,
+        ReceiptHandle: ReceiptHandle
+    };
+    return new Promise(function(resolve, reject){
+        sqs.deleteMessage(params, function(err, data){
+            if(err) reject(err)
+            resolve(data)
+        })
     })
 }
 
@@ -60,8 +87,9 @@ const getQueueUrl = function (QueueName) {
 
 module.exports = {
     createQueue: createQueue,
-    deleteMessage: deleteMessage,
     sendMessage: sendMessage,
     getQueueUrl: getQueueUrl,
-    addFollowersCheck: addFollowersCheck
+    addFollowersCheck: addFollowersCheck,
+    receiveMessage: receiveMessage,
+    deleteMessage: deleteMessage
 }

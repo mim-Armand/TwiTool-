@@ -20,12 +20,14 @@ const addtUser = function (projectName, displayName) {
                                 if( usersData.users.indexOf(userDetail.id) === -1 || true){ //TODO: <<< remove the `|| true` on this line
                                     usersData.users.push(userDetail.id)
                                     s3db.putObject(projectName, 'users/' + userDetail.id, JSON.stringify(userDetail))
+                                    s3db.putObject(projectName, displayName + "/index.json", JSON.stringify({ "passes": []}))
                                     // sqs.
                                     sqs.getQueueUrl(projectName)
                                         .then(function(d){
-                                            sqs.addFollowersCheck(d.QueueUrl, userDetail.id, -1)
+                                            sqs.addFollowersCheck(d.QueueUrl, userDetail.id, displayName, -1)
                                                 .then(function(d){
                                                     console.log('DONE adding the user ', displayName)
+                                                    resolve(d)
                                                 })
                                         })
                                         .catch(function(r){

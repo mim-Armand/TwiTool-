@@ -30,34 +30,37 @@ const initialize = function (projectName) { //TODO: later (when we have formed t
 // 2. Make sure that main queue exist: ---------------------------------------------------------------------------------
 
                 sqs.createQueue()
-                    .then(function (d) {
-                        console.info('Made sure that main SQS QUEUE exist', d)
+                    .then(function (queueData) {
+                        console.info('Made sure that main SQS QUEUE exist', queueData)
 // 3. Make sure that main users.json exist -----------------------------------------------------------------------------
                         s3db.existObject(projectName, 'users.json')
                             .then(function(d){
                                 if(d) {console.warn('<<< THE USERS.JSON ALREADY EXISTED! >>>')}
                                     s3db.putObject(projectName, 'users.json', '{"users":[]}')
                                         .then(function (d) {
-// 4. Create a role for the CloudWatch event ---------------------------------------------------------------------------
-                                            iam.createRole(rolePolicy, projectName, 'Twitool role policy.')
-                                                .then(function(rolePolicy){
-// 5. Create an scheduled CloudWatch event / per twitter application ---------------------------------------------------
-                                                    cloudWatchEvents.puteRule( projectName, rolePolicy.Arn, 'TwiTool Event Rule..', 'rate(6 minutes)', 'DISABLED')
-                                                        .then(function(eventRule){
-                                                            console.log('cloud watch event created', eventRule)
-// 6  Create a Lambda function to be called from the CloudWatch Event / per twitter app --------------------------------
-// 7  Add Targets to the cloudWatch event rule -------------------------------------------------------------------------
-// 8. Start listening for and/or checking the SQS message list ---------------------------------------------------------
-                                                            //TODO!
-                                                            resolve('Initialization Successful.')
-                                                        })
-                                                        .catch(function(r){
-                                                            console.error('cloud watch failed', r)
-                                                        })
-                                                }).catch(function(r){
-                                                    console.error('Create role failed!', r)
-                                                    reject(r)
-                                            })
+// 4. Start listening for and/or checking the SQS message list ---------------------------------------------------------
+                                            //TODO!
+                                            resolve({"message":'Initialization Successful.', queueData: queueData})
+
+
+// (Cancelled for now) 4. Create a role for the CloudWatch event -------------------------------------------------------
+//                                             iam.createRole(rolePolicy, projectName, 'Twitool role policy.')
+//                                                 .then(function(rolePolicy){
+// (Cancelled for now) 5. Create an scheduled CloudWatch event / per twitter application -------------------------------
+//                                                     cloudWatchEvents.puteRule( projectName, rolePolicy.Arn, 'TwiTool Event Rule..', 'rate(6 minutes)', 'DISABLED')
+//                                                         .then(function(eventRule){
+//                                                             console.log('cloud watch event created', eventRule)
+// (Cancelled for now) 6  Create a Lambda function to be called from the CloudWatch Event / per twitter app ------------
+// (Cancelled for now) 7  Add Targets to the cloudWatch event rule -----------------------------------------------------
+                                                        // })
+                                                        // .catch(function(r){
+                                                        //     console.error('cloud watch failed', r)
+                                                        // })
+                                                // })
+                                                // .catch(function(r){
+                                                //     console.error('Create role failed!', r)
+                                                //     reject(r)
+                                                // })
                                         })
                             })
                     })
