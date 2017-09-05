@@ -19,7 +19,7 @@ const pageFetchLimit = 50; // Equals to 250,000 followers = 50 files x 55KB
 appStart.initialize( projectName )
     .then(function(d){
       console.info(d)
-        addUser("mim_Armand")
+        // addUser("mim_Armand")
         taskSchdule(d.queueData.QueueUrl)
     })
     .catch(function(r){console.error(r)})
@@ -79,7 +79,7 @@ const taskSchdule = function(QueueUrl){
                                                         // 2. create the next cycle message
                                                         const nxt_cursur = (followersData.next_cursor !== 0) ? followersData.next_cursor : -1
                                                         const nxt_delay  = (followersData.next_cursor !== 0) ? 1 : 900
-                                                        if(fileIndex < pageFetchLimit) {
+                                                        if(fileIndex < pageFetchLimit) { //todo: add the endTime to the object before saving it!
                                                             sqs.addFollowersCheck(QueueUrl, messageBody.user_id, messageBody.screen_name, nxt_cursur, nxt_delay)
                                                                 .then(function (d) {
                                                                     console.info('the cycle is complete! we added a message to the que for the next cycle!', d)
